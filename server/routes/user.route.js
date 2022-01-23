@@ -6,7 +6,6 @@ const { getUsers } = require("../controllers/user.controller.js");
 router.get("/api/users", getUsers);
 
 router.post("/api/users", async (req, res) => {
-  console.log(req.body);
   const user = new User(req.body);
   try {
     await user.save();
