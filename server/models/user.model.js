@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   isActive: Boolean,
 });
-const User = mongoose.model("userModel", userSchema);
+const User = mongoose.model("users", userSchema);
 
 //we encrypt passwords on creation :
 //we use a method on the Schema to set a middleware up:
