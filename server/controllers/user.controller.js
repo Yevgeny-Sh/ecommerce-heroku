@@ -25,7 +25,8 @@ const createUser = async (req, res) => {
   const user = new User(req.body);
   try {
     await user.save();
-    res.status(201).send(user);
+    const token = await user.generateAuthToken();
+    res.status(201).send({ user, token });
   } catch (err) {
     res.status(400).send(err);
   }
@@ -66,9 +67,8 @@ const updateUser = async (req, res) => {
 
   try {
     const user = await User.findById(req.params.id);
-
     updates.forEach((update) => (user[update] = req.body[update]));
-    //inclused save to hash passwords on update
+    //included save to hash passwords on update
     await user.save();
     if (!user) {
       return res.status(400).send(`User not found - ${req.params.id}`);
@@ -81,7 +81,8 @@ const updateUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const user = await User.findByCredentials(req.body.name, req.body.password);
-    res.send(user);
+    const token = await user.generateAuthToken();
+    res.send({ user, token });
   } catch (e) {
     res.status(400).send();
   }
