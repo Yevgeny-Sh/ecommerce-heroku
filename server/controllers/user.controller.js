@@ -78,6 +78,14 @@ const updateUser = async (req, res) => {
     res.status(404).send(err);
   }
 };
+const loginUser = async (req, res) => {
+  try {
+    const user = await User.findByCredentials(req.body.name, req.body.password);
+    res.send(user);
+  } catch (e) {
+    res.status(400).send();
+  }
+};
 
 module.exports = {
   getUsers,
@@ -86,4 +94,5 @@ module.exports = {
   deleteUser,
   deleteAllUsers,
   updateUser,
+  loginUser,
 };
