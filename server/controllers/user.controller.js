@@ -10,7 +10,10 @@ const getUsers = async (req, res) => {
     res.status(400).send(e);
   }
 };
-const getUser = async (req, res) => {
+const getLoggedInUser = async (req, res) => {
+  res.send(req.user);
+};
+const getUserById = async (req, res) => {
   const _id = req.params.id;
   try {
     const user = await User.findById(_id);
@@ -71,9 +74,6 @@ const updateUser = async (req, res) => {
     updates.forEach((update) => (req.user[update] = req.body[update]));
     //included save to hash passwords on update
     await req.user.save();
-    if (!req.user) {
-      return res.status(400).send(`User not found - ${req.params.id}`);
-    }
     res.send(req.user);
   } catch (err) {
     res.status(404).send(err);
@@ -103,7 +103,8 @@ const logOutUser = async (req, res) => {
 
 module.exports = {
   getUsers,
-  getUser,
+  getLoggedInUser,
+  getUserById,
   createUser,
   deleteUser,
   deleteAllUsers,
