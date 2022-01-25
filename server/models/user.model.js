@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   ],
 });
 //userSchema.methods.myMethod
-//add method to an Imstance of a User Model
+//add method to an Instance of a User Model
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
   const token = jwt.sign({ _id: user._id.toString() }, "hello");
@@ -25,8 +25,21 @@ userSchema.methods.generateAuthToken = async function () {
 
   return token;
 };
-//userSchema.statics.myMethod
-//add method to User Model
+//removes password & tokens array from user
+userSchema.methods.toJSON = function () {
+  //!reminder: exprss converts  objects to json before he seends them as response
+
+  const user = this;
+  //!so this line is neccecery
+  const userObject = user.toObject();
+
+  delete userObject.password;
+  delete userObject.tokens;
+
+  return userObject;
+};
+
+//adds a method to User Model
 userSchema.statics.findByCredentials = async (name, password) => {
   const user = await User.findOne({ name });
   if (!user) {

@@ -1,4 +1,5 @@
 require("../db/mongoose");
+const { remove } = require("../models/user.model");
 const User = require("../models/user.model");
 
 const getUsers = async (req, res) => {
@@ -12,13 +13,13 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
   const _id = req.params.id;
   try {
-    const user = await Product.findById(_id);
+    const user = await User.findById(_id);
     if (!user) {
       return res.status(400).send(`user not found - ${req.params.id}`);
     }
     res.send(user);
   } catch (err) {
-    res.status(500).send(e);
+    res.status(500).send(err);
   }
 };
 const createUser = async (req, res) => {
@@ -33,11 +34,12 @@ const createUser = async (req, res) => {
 };
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).send(`Product not found - ${req.params.id}`);
-    }
-    res.send(user);
+    // const user = await User.findByIdAndDelete(req.user._id);
+    // if (!user) {
+    //   return res.status(404).send(`user not found - ${req.params.id}`);
+    // }
+    await req.user.remove();
+    res.send(req.user);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -66,14 +68,13 @@ const updateUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.params.id);
-    updates.forEach((update) => (user[update] = req.body[update]));
+    updates.forEach((update) => (req.user[update] = req.body[update]));
     //included save to hash passwords on update
-    await user.save();
-    if (!user) {
+    await req.user.save();
+    if (!req.user) {
       return res.status(400).send(`User not found - ${req.params.id}`);
     }
-    res.send(user);
+    res.send(req.user);
   } catch (err) {
     res.status(404).send(err);
   }
@@ -87,6 +88,18 @@ const loginUser = async (req, res) => {
     res.status(400).send();
   }
 };
+const logOutUser = async (req, res) => {
+  try {
+    //removes sign in token from token array
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token;
+    });
+    await req.user.save();
+    res.send("user logged out");
+  } catch (e) {
+    res.status(500).send();
+  }
+};
 
 module.exports = {
   getUsers,
@@ -96,4 +109,5 @@ module.exports = {
   deleteAllUsers,
   updateUser,
   loginUser,
+  logOutUser,
 };
